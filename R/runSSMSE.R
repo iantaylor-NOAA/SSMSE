@@ -402,16 +402,20 @@ run_SSMSE_scen <- function(scen_name = "scen_1",
   run_failed_df <- NULL
   for (i in seq_len(iter)) {
     if ("error" %in% class(return_val[[i]])) {
+      # Extract the original iteration error so the message includes root cause,
+      # not just the scenario directory where the failure occurred.
+      err_msg <- conditionMessage(return_val[[i]])
       message(
         "Iteration ", max_prev_iter + i, " failed in directory ",
         out_dir_iter,
+        ". Error: ", err_msg,
         ". Please delete folders with failed runs before running summary functions."
       )
       tmp_df <- data.frame(
         iteration = max_prev_iter + i,
         scenario = basename(out_dir_iter),
         out_dir = out_dir_iter,
-        error = paste(return_val[[i]][["message"]])
+        error = err_msg
       )
       # todo: add more info on why the run failed.
       run_failed_df <- rbind(run_failed_df, tmp_df)
